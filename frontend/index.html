@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hospital Patient Management System</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════ LOGIN SCREEN ═══════════════════════════ -->
+<div id="loginScreen" class="login-overlay">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-logo">🏥</div>
+      <span class="login-badge">CareFlow</span>
+    </div>
+    <h1>MediCare Hospital</h1>
+    <p class="login-subtitle">Patient Management Platform</p>
+    <form id="loginForm">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="loginUsername" placeholder="Enter username" required />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter password" required />
+      </div>
+      <div id="loginError" class="error-msg hidden"></div>
+      <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+    </form>
+    <p class="login-hint">Default: admin / Admin@123</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ MAIN APP ═══════════════════════════════ -->
+<div id="app" class="hidden">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-logo">🏥</span>
+      <span class="sidebar-title">MediCare</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-page="dashboard">📊 Dashboard</a>
+      <a href="#" class="nav-item" data-page="patients">👥 Patients</a>
+      <a href="#" class="nav-item" data-page="appointments">📅 Appointments</a>
+      <a href="#" class="nav-item" data-page="staff" id="staffNavItem">👤 Staff</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span id="sidebarUserName">—</span>
+        <span id="sidebarUserRole" class="role-badge">—</span>
+      </div>
+      <button class="btn btn-outline btn-sm" id="logoutBtn">Logout</button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main-content">
+
+    <!-- ── DASHBOARD ── -->
+    <section id="page-dashboard" class="page active">
+      <div class="page-header"><h2>Dashboard</h2></div>
+      <div class="stats-grid">
+        <div class="stat-card blue"><div class="stat-icon">👥</div><div><div class="stat-value" id="statPatients">—</div><div class="stat-label">Total Patients</div></div></div>
+        <div class="stat-card green"><div class="stat-icon">📅</div><div><div class="stat-value" id="statScheduled">—</div><div class="stat-label">Scheduled</div></div></div>
+        <div class="stat-card orange"><div class="stat-icon">✅</div><div><div class="stat-value" id="statCompleted">—</div><div class="stat-label">Completed</div></div></div>
+        <div class="stat-card red"><div class="stat-icon">❌</div><div><div class="stat-value" id="statCancelled">—</div><div class="stat-label">Cancelled</div></div></div>
+      </div>
+      <div class="dashboard-tables">
+        <div class="card">
+          <div class="card-header"><h3>Recent Patients</h3></div>
+          <table class="table"><thead><tr><th>ID</th><th>Name</th><th>Blood Group</th><th>Phone</th></tr></thead>
+          <tbody id="recentPatients"></tbody></table>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Upcoming Appointments</h3></div>
+          <table class="table"><thead><tr><th>Patient</th><th>Doctor</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody id="upcomingAppointments"></tbody></table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PATIENTS ── -->
+    <section id="page-patients" class="page">
+      <div class="page-header">
+        <h2>Patients</h2>
+        <button class="btn btn-primary" id="addPatientBtn">+ Add Patient</button>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="patientSearch" placeholder="Search by name or patient ID…" />
+        <button class="btn btn-secondary" id="patientSearchBtn">Search</button>
+      </div>
+      <div class="card">
+        <table class="table" id="patientsTable">
+          <thead><tr><th>Patient ID</th><th>Name</th><th>DOB</th><th>Gender</th><th>Blood</th><th>Phone</th><th>Actions</th></tr></thead>
+          <tbody id="patientsTbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── APPOINTMENTS ── -->
+    <section id="page-appointments" class="page">
+      <div class="page-header">
+        <h2>Appointments</h2>
+        <button class="btn btn-primary" id="addApptBtn">+ New Appointment</button>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="apptPatientFilter" placeholder="Filter by Patient ID…" />
+        <select id="apptStatusFilter">
+          <option value="">All Statuses</option>
+          <option value="scheduled">Scheduled</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <button class="btn btn-secondary" id="apptFilterBtn">Filter</button>
+      </div>
+      <div class="card">
+        <table class="table">
+          <thead><tr><th>ID</th><th>Patient</th><th>Doctor</th><th>Department</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="apptTbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── STAFF ── -->
+    <section id="page-staff" class="page">
+      <div class="page-header">
+        <h2>Staff Management</h2>
+        <button class="btn btn-primary" id="addStaffBtn">+ Add Staff</button>
+      </div>
+      <div class="card">
+        <p class="info-text">Only admins can add staff accounts. Use the form below to register new staff.</p>
+        <form id="addStaffForm" class="inline-form">
+          <input type="text" id="staffUsername" placeholder="Username" required />
+          <input type="text" id="staffFullName" placeholder="Full Name" required />
+          <input type="password" id="staffPassword" placeholder="Password" required />
+          <select id="staffRole"><option value="staff">Staff</option><option value="admin">Admin</option></select>
+          <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+        <div id="staffMsg" class="hidden"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ═══════════════════════════ MODALS ════════════════════════════════ -->
+
+<!-- Patient Modal -->
+<div id="patientModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="patientModalTitle">Add Patient</h3>
+      <button class="modal-close" data-modal="patientModal">✕</button>
+    </div>
+    <form id="patientForm">
+      <div class="form-grid">
+        <div class="form-group"><label>Patient ID *</label><input type="text" id="fPatientId" required /></div>
+        <div class="form-group"><label>Full Name *</label><input type="text" id="fFullName" required /></div>
+        <div class="form-group"><label>Date of Birth *</label><input type="date" id="fDob" required /></div>
+        <div class="form-group"><label>Gender *</label>
+          <select id="fGender" required><option value="">Select</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select>
+        </div>
+        <div class="form-group"><label>Phone *</label><input type="text" id="fPhone" required /></div>
+        <div class="form-group"><label>Email</label><input type="email" id="fEmail" /></div>
+        <div class="form-group"><label>Blood Group</label>
+          <select id="fBlood"><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select>
+        </div>
+        <div class="form-group full-width"><label>Address</label><textarea id="fAddress" rows="2"></textarea></div>
+      </div>
+      <div id="patientFormError" class="error-msg hidden"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" data-modal="patientModal">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="patientSubmitBtn">Save Patient</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Appointment Modal -->
+<div id="apptModal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="apptModalTitle">New Appointment</h3>
+      <button class="modal-close" data-modal="apptModal">✕</button>
+    </div>
+    <form id="apptForm">
+      <div class="form-grid">
+        <div class="form-group"><label>Patient ID *</label><input type="text" id="aPatientId" required /></div>
+        <div class="form-group"><label>Doctor Name *</label><input type="text" id="aDoctorName" required /></div>
+        <div class="form-group"><label>Department *</label><input type="text" id="aDepartment" required /></div>
+        <div class="form-group"><label>Date & Time *</label><input type="datetime-local" id="aDate" required /></div>
+        <div class="form-group"><label>Status</label>
+          <select id="aStatus"><option value="scheduled">Scheduled</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select>
+        </div>
+        <div class="form-group full-width"><label>Reason</label><textarea id="aReason" rows="2"></textarea></div>
+        <div class="form-group full-width"><label>Notes</label><textarea id="aNotes" rows="2"></textarea></div>
+      </div>
+      <div id="apptFormError" class="error-msg hidden"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" data-modal="apptModal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Appointment</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div id="confirmModal" class="modal hidden">
+  <div class="modal-content modal-sm">
+    <div class="modal-header"><h3>Confirm Delete</h3><button class="modal-close" data-modal="confirmModal">✕</button></div>
+    <p id="confirmMsg" style="padding:1rem 0;">Are you sure?</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" data-modal="confirmModal">Cancel</button>
+      <button class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

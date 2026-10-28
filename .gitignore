@@ -1,0 +1,12 @@
+.env
+.env.prod
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+.venv/
+venv/
+node_modules/
+*.log
+nginx/certs/

@@ -1,0 +1,50 @@
+# Local development — uses a local PostgreSQL container
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: hpms_db
+    environment:
+      POSTGRES_USER: hpms_user
+      POSTGRES_PASSWORD: hpms_pass
+      POSTGRES_DB: hpms_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hpms_user -d hpms_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: hpms_backend
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://hpms_user:hpms_pass@db:5432/hpms_db
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./frontend:/app/../frontend:ro
+    command: >
+      sh -c "python -m app.seed && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: hpms_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@hospital.local
+      PGADMIN_DEFAULT_PASSWORD: pgadmin123
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+volumes:
+  pgdata:
